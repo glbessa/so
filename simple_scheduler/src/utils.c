@@ -9,7 +9,7 @@ LinkedList * parse_tasksfile(FILE *file) {
         fscanf(file, "%s %d", buf, &time_left);
 
         Task *task = task_create(buf, 0, time_left);
-        linkedlist_append(tasks, task);
+        linkedlist_append(&tasks, task);
     }
 
     return tasks;

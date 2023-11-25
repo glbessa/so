@@ -11,12 +11,20 @@ LinkedList * linkedlist_create(void *item) {
     return node;
 }
 
-void linkedlist_destroy(LinkedList *list) {
+void linkedlist_destroy(LinkedList *list, int destroy_items_flag) {
     if (list == NULL) {
         return;
     }
     
-    free(list);
+    LinkedList *next = list->next;
+    while(list != NULL) {
+        if (list->item != NULL && destroy_items_flag != 0) {
+            free(list->item);   
+        }
+        free(list);
+        list = next;
+        next = list->next;
+    }
 }
 
 void linkedlist_clear(LinkedList **list) {
@@ -40,6 +48,14 @@ void * linkedlist_get(LinkedList **list, int index) {
     return head->item;
 }
 
+void * linkedlist_remove(LinkedList **list, int index) {
+    if (list == NULL || *list == NULL) {
+        return NULL;
+    }
+
+    
+}
+
 void * linkedlist_pop(LinkedList **list) {
     if (list == NULL || *list == NULL) {
         return NULL;
@@ -59,7 +75,8 @@ void * linkedlist_pop(LinkedList **list) {
     prev->next = NULL;
 
     void *item = actual->item;
-    linkedlist_destroy(actual);
+    if (actual != NULL)
+        free(actual);
 
     return item;
 }

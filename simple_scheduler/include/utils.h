@@ -22,5 +22,7 @@ struct Core {
 
 LinkedList * parse_tasksfile(FILE *file);
 LinkedList * read_tasksfile(char * filename);
+Task * task_create(char * id, int execution_time, int time_left);
+void print_help();
 
 #endif
