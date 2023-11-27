@@ -49,11 +49,24 @@ void * linkedlist_get(LinkedList **list, int index) {
 }
 
 void * linkedlist_remove(LinkedList **list, int index) {
-    if (list == NULL || *list == NULL) {
+    if (list == NULL) {
         return NULL;
     }
 
-    
+    LinkedList *prev = *list;
+    while (index > 0) {
+        if (*list == NULL) {
+            return NULL;
+        }
+        prev = *list;
+        *list = (*list)->next;
+        index--;
+    }
+
+    void *item = (*list)->item;
+
+
+    return item;
 }
 
 void * linkedlist_pop(LinkedList **list) {
@@ -64,7 +77,10 @@ void * linkedlist_pop(LinkedList **list) {
     LinkedList *prev = *list;
     if (prev->next == NULL) {
         *list = NULL;
-        return prev;
+        void *item = prev->item;
+        if (prev != NULL)
+            free(prev);
+        return item;
     }
 
     while (prev->next->next != NULL) {

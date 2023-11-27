@@ -4,25 +4,18 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
-#include "linkedlist.h"
+#include "virtual_machine.h"
+#include "scheduler.h"
+#include "task.h"
 
-typedef struct Task Task;
-struct Task {
-    char * id;
-    int execution_time;
-    int time_left;
-};
+#define BUFFER_MAX_LEN 30
 
-typedef struct Core Core;
-struct Core {
-    int id;
-    Task *running_task;
-};
-
-LinkedList * parse_tasksfile(FILE *file);
-LinkedList * read_tasksfile(char * filename);
-Task * task_create(char * id, int execution_time, int time_left);
+int parse_tasksfile(FILE *file, Task **tasks);
+int read_tasksfile(char * filename, Task **tasks);
+void stats_print(FILE *file, Vm *vm, Scheduler *scheduler);
 void print_help();
 
 #endif

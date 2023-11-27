@@ -4,29 +4,92 @@
 #include <string.h>
 #include <time.h>
 
-#include "linkedlist.h"
+#include "policies.h"
+#include "scheduler.h"
+#include "virtual_machine.h"
+#include "task.h"
 #include "utils.h"
 
+#define MAX_TASKS 30
+
 int main(int argc, char **argv) {
-    if (argc < 3 || (argc <= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0))) {
+    if (argc < 4 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
         print_help();
         return 0;
     }
 
+    // Creating vm
+    Vm *vm = malloc(sizeof(Vm));
+    vm->num_cores = atoi(argv[3]);
+    vm->cores = malloc(sizeof(Core) * vm->num_cores);
+
+    // Creating scheduler
+    Scheduler *scheduler = malloc(sizeof(Scheduler));
+    scheduler->tasks = malloc(sizeof(Task *) * MAX_TASKS);
+    scheduler->quantum = atoi(argv[2]);
+    scheduler->total_exec_time = 0;
+    scheduler->policy = &shortest_job_first;
+
+    char *stats_filename = "stats.txt";
+
+    if (argc >= 5) {
+        if (strcmp(argv[4], "sjl") == 0) {
+            scheduler->policy = &shortest_job_last;
+        }
+    }
+    if (argc == 6) {
+        stats_filename = argv[5];
+    }
+    
     // Reading tasks file
-    time_t begin_io = time(NULL);
-    LinkedList *tasks = read_tasksfile(argv[1]);
-    time_t end_io = time(NULL);
-    printf("Total IO time: %f\n", difftime(end_io, begin_io));
+    printf("Reading from file %s\n", argv[1]);
+    scheduler->num_tasks = read_tasksfile(argv[1], scheduler->tasks);
+    printf("Reading complete. Total tasks: %d\n", scheduler->num_tasks);
+    tasks_print(scheduler->tasks, scheduler->num_tasks);
 
     // Simulating
-    time_t begin = time(NULL);
-    
-    time_t end = time(NULL);
-    double ellapsed_time = difftime(end, begin);
-    printf("Total time ellapsed: %f\n", ellapsed_time);
+    printf("\nBegining simulation\n");
 
-    linkedlist_destroy(tasks, DESTROY_ITEMS);
+    while(has_tasks_not_finished(scheduler->tasks, scheduler->num_tasks)) {
+        if (scheduler->total_exec_time % scheduler->quantum == 0) {
+            schedule(scheduler);
+        }
+
+        dispatch(vm, scheduler);
+        vm_run(vm);
+        vm_print_cores(vm);
+        scheduler->total_exec_time += 1;
+
+        // Check for finished tasks
+        for (int i = 0; i < scheduler->num_tasks; i++) {
+            if (scheduler->tasks[i]->time_left == 0) {
+                if (scheduler->tasks[i]->finish_exec == 0)
+                    scheduler->tasks[i]->finish_exec = scheduler->total_exec_time;
+                scheduler->tasks[i]->state = FINISHED;
+            }
+        }
+    }
+
+    printf("\nSimulation finished\n");
+    printf("Total execution time: %d\n", scheduler->total_exec_time);
+
+    printf("Saving statistics in %s\n", stats_filename);
+    FILE *stats_file = fopen(stats_filename, "w");
+    if (stats_file == NULL) {
+        fprintf(stderr, "Error while saving statistics");
+    }
+
+    stats_print(stats_file, vm, scheduler);
+    
+    fclose(stats_file);
+
+    // Cleaning everything
+    tasks_destroy(scheduler->tasks, scheduler->num_tasks);
+
+    free(scheduler);
+
+    free(vm->cores);
+    free(vm);
 
     return 0;
 }

@@ -1,15 +1,25 @@
 #include "policies.h"
 
-void shortest_job_first(LinkedList **tasks) {    
-    int len = linkedlist_length(tasks);
+int shortest_job_first(const void *t1, const void *t2) {
+    Task *task1 = (Task *) *((const void **) t1);
+    Task *task2 = (Task *) *((const void **) t2);
 
-    for (int i = 0; i < len; i++) {
-        for (int j = 1; j < len; j++) {
-            
-        }
-    }
+    if (task1->time_left < task2->time_left)
+        return -1;
+    if (task1->time_left > task2->time_left)
+        return 1;
+    
+    return 0;
 }
 
-void shortest_job_last(LinkedList **tasks) {
+int shortest_job_last(const void *t1, const void *t2) {
+    Task *task1 = (Task *) *((const void **) t1);
+    Task *task2 = (Task *) *((const void **) t2);
 
+    if (task1->time_left > task2->time_left)
+        return -1;
+    if (task1->time_left < task2->time_left)
+        return 1;
+    
+    return 0;
 }

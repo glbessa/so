@@ -7,7 +7,7 @@
 
 typedef struct StaticList StaticList;
 struct StaticList {
-    void ** list;
+    void **items;
     int size;
     int length;
 };
