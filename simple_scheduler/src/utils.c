@@ -88,10 +88,11 @@ void stats_print(FILE *file, Vm *vm, Scheduler *scheduler) {
 
 void print_help() {
     printf("\nUsage:\n");
-    printf("    simple_scheduler <tasks_file> <quantum> <num_cores> <sched_policy>\n");
+    printf("    simple_scheduler <tasks_file> <quantum> <num_cores> <sched_policy> <stats_path>\n");
     printf("\nOptions:\n");
     printf("    sched_policy: Schedule policy\n");
     printf("        sjf - shortest job first [default]\n");
     printf("        sjl - shortest job last\n");
+    printf("    stats_path: Path to save statistics\n");
     printf("\n\n");
 }
