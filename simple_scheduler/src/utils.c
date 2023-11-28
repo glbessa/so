@@ -74,12 +74,23 @@ int read_tasksfile(char * filename, Task **tasks) {
     return len;
 }
 
+void write_statsfile(const char *filename, Vm *vm, Scheduler *scheduler) {
+    FILE *stats_file = fopen(filename, "w");
+    if (stats_file == NULL) {
+        fprintf(stderr, "Error while saving statistics");
+    }
+
+    stats_print(stats_file, vm, scheduler);
+    
+    fclose(stats_file);
+}
+
 void stats_print(FILE *file, Vm *vm, Scheduler *scheduler) {
     for (int i = 0; i < vm->num_cores; i++) {
         fprintf(file, "Processador_%d\n", i);
         for (int j = 0; j < scheduler->num_tasks; j++) {
             if (scheduler->tasks[j]->core_id == i) {
-                fprintf(file, "%s;%d;%d\n", scheduler->tasks[j]->id, scheduler->tasks[j]->start_exec, scheduler->tasks[j]->finish_exec);
+                fprintf(file, "%s;%d;%d\n", scheduler->tasks[j]->id, scheduler->tasks[j]->started_time, scheduler->tasks[j]->finished_time);
             }
         }
         fprintf(file, "\n");
@@ -95,4 +106,13 @@ void print_help() {
     printf("        sjl - shortest job last\n");
     printf("    stats_path: Path to save statistics\n");
     printf("\n\n");
+}
+
+void clean_everything(Vm *vm, Scheduler *scheduler) {
+    tasks_destroy(scheduler->tasks, scheduler->num_tasks);
+
+    free(scheduler);
+
+    free(vm->cores);
+    free(vm);
 }

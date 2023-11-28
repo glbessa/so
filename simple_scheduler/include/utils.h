@@ -15,7 +15,9 @@
 
 int parse_tasksfile(FILE *file, Task **tasks);
 int read_tasksfile(char * filename, Task **tasks);
+void write_statsfile(const char *filename, Vm *vm, Scheduler *scheduler);
 void stats_print(FILE *file, Vm *vm, Scheduler *scheduler);
 void print_help();
+void clean_everything(Vm *vm, Scheduler *scheduler)
 
 #endif

@@ -63,8 +63,8 @@ int main(int argc, char **argv) {
         // Check for finished tasks
         for (int i = 0; i < scheduler->num_tasks; i++) {
             if (scheduler->tasks[i]->time_left == 0) {
-                if (scheduler->tasks[i]->finish_exec == 0)
-                    scheduler->tasks[i]->finish_exec = scheduler->total_exec_time;
+                if (scheduler->tasks[i]->finished_time == 0)
+                    scheduler->tasks[i]->finished_time = scheduler->total_exec_time;
                 scheduler->tasks[i]->state = FINISHED;
             }
         }
@@ -74,22 +74,10 @@ int main(int argc, char **argv) {
     printf("Total execution time: %d\n", scheduler->total_exec_time);
 
     printf("Saving statistics in %s\n", stats_filename);
-    FILE *stats_file = fopen(stats_filename, "w");
-    if (stats_file == NULL) {
-        fprintf(stderr, "Error while saving statistics");
-    }
-
-    stats_print(stats_file, vm, scheduler);
-    
-    fclose(stats_file);
+    write_statsfile(stats_filename, vm, scheduler);
 
     // Cleaning everything
-    tasks_destroy(scheduler->tasks, scheduler->num_tasks);
-
-    free(scheduler);
-
-    free(vm->cores);
-    free(vm);
+    clean_everything(vm, scheduler);
 
     return 0;
 }

@@ -17,11 +17,12 @@ typedef struct Task Task;
 struct Task {
     char * id;
     State state;
+    int core_id;
     int execution_time;
     int time_left;
-    int start_exec;
-    int finish_exec;
-    int core_id;
+    int arrival_time;
+    int started_time;
+    int finished_time;
 };
 
 Task * task_create(char * id, int execution_time, int time_left);
