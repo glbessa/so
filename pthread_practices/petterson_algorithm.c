@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
-#define NUM_THREADS 2
+#define NUM_THREADS 4
 
 void * silly_function(void * args);
 int is_alone(const int id);
@@ -19,7 +19,7 @@ void * silly_function(void * args) {
     int *id = (int *) args;
     interested[*id] = 1;
 
-    while (is_alone(*id) && turn != *id);
+    while (is_alone(*id) && turn != *id && turn == -1);
 
     printf("Hello from thread %i of process %d (for os it is %ld)\n", *id, getpid(), syscall(__NR_getpid));
 
@@ -47,19 +47,13 @@ int main(int argc, char **argv) {
         pthread_create(&threads[i], NULL, silly_function, id);
     }
 
-    turn = 3;
-
-    sleep(2);
+    turn = 0;
 
     turn = 1;
 
-    sleep(2);
-
     turn = 2;
 
-    sleep(2);
-
-    turn = 0;
+    turn = 3;
 
     for (int i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads[i], NULL);
